@@ -23,57 +23,48 @@ app.get('/', (req, res) => {
 // API Endpoints para webhooks
 // 1. Recibir webhooks
 app.post('/api/webhook/receive', (req, res) => {
-  // Determinar qué tipo de respuesta dar según el modo
   let responseStatus = 200;
   let responseBody = { success: true, message: 'Webhook recibido' };
   let isValid = true;
-  
+
   switch(responseMode) {
     case "404":
-      responseStatus = 404;
-      responseBody = { 
-        error: { 
-          message: "Not Found", 
-          type: "NotFoundError",
-          code: 404
+      responseStatus = 400;
+      responseBody = {
+        error: {
+          message: "Not Found"
         }
       };
       isValid = false;
       break;
     case "not-user":
       responseStatus = 400;
-      responseBody = { 
-        error: { 
-          message: "Recipient is not a WhatsApp user", 
-          type: "WhatsAppUserError",
-          code: 1006
+      responseBody = {
+        error: {
+          message: "Recipient is not a WhatsApp user"
         }
       };
       isValid = false;
       break;
     case "not-approved":
       responseStatus = 400;
-      responseBody = { 
-        error: { 
-          message: "Template not approved", 
-          type: "TemplateError",
-          code: 1032
+      responseBody = {
+        error: {
+          message: "Template not approved"
         }
       };
       isValid = false;
       break;
     case "not-opted":
       responseStatus = 400;
-      responseBody = { 
-        error: { 
-          message: "Phone number not opted in", 
-          type: "OptInError",
-          code: 1028
+      responseBody = {
+        error: {
+          message: "Phone number not opted in"
         }
       };
       isValid = false;
       break;
-    // Caso predeterminado es válido (ya establecido)
+    // Predeterminado: válido
   }
 
   const webhook = {
@@ -88,14 +79,10 @@ app.post('/api/webhook/receive', (req, res) => {
 
   console.log('Webhook recibido:', JSON.stringify(webhook.payload, null, 2));
   console.log('Respuesta:', responseStatus, JSON.stringify(responseBody, null, 2));
-  
-  // Añadir al historial (limitado a 20 entradas)
   webhookHistory.unshift(webhook);
   if (webhookHistory.length > 20) {
     webhookHistory = webhookHistory.slice(0, 20);
   }
-  
-  // Devolver la respuesta según el modo configurado
   res.status(responseStatus).json(responseBody);
 });
 
