@@ -62,7 +62,7 @@ Configure your external services to send POST requests to:
 ```
 http://localhost:3005/api/webhook/receive
 ```
-All webhooks will be displayed in the interface automatically.
+All webhooks will be displayed in the interface automatically. Open a delivery to see its payload, the response sent and its request headers (signature headers such as `x-hub-signature-256` or `stripe-signature` are listed first, each copyable).
 
 ### Simulating Response Types
 

@@ -1,0 +1,532 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-19T16:04:59.936Z",
+  "title": "Design System: Buzón de webhooks",
+  "extensions": {
+    "colorMeta": {
+      "shell-navy": {
+        "role": "primary",
+        "displayName": "Shell Navy",
+        "canonical": "#15254a",
+        "cssVar": "--shell",
+        "dark": "#1a2d57",
+        "tonalRamp": [
+          "#060b16",
+          "#0b1325",
+          "#0f1a34",
+          "#15254a",
+          "#4d5975",
+          "#8a92a5",
+          "#c2c6d0",
+          "#e8e9ed"
+        ]
+      },
+      "shell-ink": {
+        "role": "neutral",
+        "displayName": "Shell Ink",
+        "canonical": "#eef3fc",
+        "cssVar": "--shell-ink",
+        "dark": "#eef3fc",
+        "tonalRamp": [
+          "#47494c",
+          "#777a7e",
+          "#a7aab0",
+          "#eef3fc",
+          "#f2f6fd",
+          "#f7f9fe",
+          "#fbfcfe",
+          "#fdfeff"
+        ]
+      },
+      "shell-ink-muted": {
+        "role": "neutral",
+        "displayName": "Shell Ink Muted",
+        "canonical": "#aebbd6",
+        "cssVar": "--shell-ink-2",
+        "dark": "#b3c1dc",
+        "tonalRamp": [
+          "#343840",
+          "#575e6b",
+          "#7a8396",
+          "#aebbd6",
+          "#c1cbe0",
+          "#d7ddeb",
+          "#eaedf4",
+          "#f7f8fb"
+        ]
+      },
+      "air-red": {
+        "role": "secondary",
+        "displayName": "Air-Mail Red",
+        "canonical": "#c8102e",
+        "cssVar": "--air-red",
+        "dark": "#e0364f",
+        "tonalRamp": [
+          "#3c050e",
+          "#640817",
+          "#8c0b20",
+          "#c8102e",
+          "#d54960",
+          "#e48897",
+          "#f1c1c9",
+          "#fae7ea"
+        ]
+      },
+      "air-blue": {
+        "role": "secondary",
+        "displayName": "Air-Mail Blue",
+        "canonical": "#1f4fa3",
+        "cssVar": "--air-blue",
+        "dark": "#4b7bd0",
+        "tonalRamp": [
+          "#091831",
+          "#102852",
+          "#163772",
+          "#1f4fa3",
+          "#5579b9",
+          "#8fa7d1",
+          "#c5d1e7",
+          "#e9edf6"
+        ]
+      },
+      "signature-ink": {
+        "role": "secondary",
+        "displayName": "Signature Ink",
+        "canonical": "#1f4fa3",
+        "cssVar": "--sig-ink",
+        "dark": "#8fb0ec",
+        "tonalRamp": [
+          "#091831",
+          "#102852",
+          "#163772",
+          "#1f4fa3",
+          "#5579b9",
+          "#8fa7d1",
+          "#c5d1e7",
+          "#e9edf6"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "Action",
+        "canonical": "#15254a",
+        "cssVar": "--action",
+        "dark": "#dfe7f7",
+        "tonalRamp": [
+          "#060b16",
+          "#0b1325",
+          "#0f1a34",
+          "#15254a",
+          "#4d5975",
+          "#8a92a5",
+          "#c2c6d0",
+          "#e8e9ed"
+        ]
+      },
+      "action-ink": {
+        "role": "primary",
+        "displayName": "Action Ink",
+        "canonical": "#ffffff",
+        "cssVar": "--action-ink",
+        "dark": "#0f1a30",
+        "tonalRamp": [
+          "#4d4d4d",
+          "#808080",
+          "#b3b3b3",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "action-hover": {
+        "role": "primary",
+        "displayName": "Action Hover",
+        "canonical": "#22386a",
+        "cssVar": "--action-hover",
+        "dark": "#ffffff",
+        "tonalRamp": [
+          "#0a1120",
+          "#111c35",
+          "#18274a",
+          "#22386a",
+          "#57688e",
+          "#919cb5",
+          "#c6cbd8",
+          "#e9ebf0"
+        ]
+      },
+      "ok-ink": {
+        "role": "tertiary",
+        "displayName": "Delivered Green",
+        "canonical": "#1b7343",
+        "cssVar": "--ok",
+        "dark": "#52c98b",
+        "tonalRamp": [
+          "#082314",
+          "#0e3a22",
+          "#13512f",
+          "#1b7343",
+          "#529570",
+          "#8db9a1",
+          "#c4dbce",
+          "#e8f1ec"
+        ]
+      },
+      "ok-wash": {
+        "role": "tertiary",
+        "displayName": "Delivered Wash",
+        "canonical": "#e3f3ea",
+        "cssVar": "--ok-soft",
+        "dark": "rgba(82, 201, 139, .12)",
+        "tonalRamp": [
+          "#444946",
+          "#727a75",
+          "#9faaa4",
+          "#e3f3ea",
+          "#eaf6ef",
+          "#f1f9f5",
+          "#f8fcfa",
+          "#fcfefd"
+        ]
+      },
+      "err-ink": {
+        "role": "tertiary",
+        "displayName": "Returned Red",
+        "canonical": "#b81d2f",
+        "cssVar": "--err",
+        "dark": "#ff7080",
+        "tonalRamp": [
+          "#37090e",
+          "#5c0f18",
+          "#811421",
+          "#b81d2f",
+          "#c95361",
+          "#dc8e97",
+          "#edc4c9",
+          "#f8e8ea"
+        ]
+      },
+      "err-wash": {
+        "role": "tertiary",
+        "displayName": "Returned Wash",
+        "canonical": "#fbe6e8",
+        "cssVar": "--err-soft",
+        "dark": "rgba(255, 112, 128, .12)",
+        "tonalRamp": [
+          "#4b4546",
+          "#7e7374",
+          "#b0a1a2",
+          "#fbe6e8",
+          "#fcecee",
+          "#fdf3f4",
+          "#fef9f9",
+          "#fffdfd"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Blue",
+        "canonical": "#1f6fe0",
+        "cssVar": "--focus",
+        "dark": "#7fb0ff",
+        "tonalRamp": [
+          "#092143",
+          "#103870",
+          "#164e9d",
+          "#1f6fe0",
+          "#5592e7",
+          "#8fb7f0",
+          "#c5daf7",
+          "#e9f1fc"
+        ]
+      },
+      "paper-ground": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#e8edf4",
+        "cssVar": "--ground",
+        "dark": "#0b1322",
+        "tonalRamp": [
+          "#464749",
+          "#74777a",
+          "#a2a6ab",
+          "#e8edf4",
+          "#eef1f7",
+          "#f4f6fa",
+          "#f9fafc",
+          "#fdfdfe"
+        ]
+      },
+      "sheet": {
+        "role": "neutral",
+        "displayName": "Sheet White",
+        "canonical": "#ffffff",
+        "cssVar": "--sheet",
+        "dark": "#131d33",
+        "tonalRamp": [
+          "#4d4d4d",
+          "#808080",
+          "#b3b3b3",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "sheet-inset": {
+        "role": "neutral",
+        "displayName": "Inset Paper",
+        "canonical": "#f4f7fb",
+        "cssVar": "--sheet-2",
+        "dark": "#0f182b",
+        "tonalRamp": [
+          "#494a4b",
+          "#7a7c7e",
+          "#abadb0",
+          "#f4f7fb",
+          "#f7f9fc",
+          "#fafbfd",
+          "#fcfdfe",
+          "#fefeff"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Letter Ink",
+        "canonical": "#14213d",
+        "cssVar": "--ink",
+        "dark": "#e4eaf6",
+        "tonalRamp": [
+          "#060a12",
+          "#0a111f",
+          "#0e172b",
+          "#14213d",
+          "#4c566c",
+          "#8a909e",
+          "#c2c5cd",
+          "#e7e9ec"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "canonical": "#4b5b78",
+        "cssVar": "--ink-2",
+        "dark": "#9cadc9",
+        "tonalRamp": [
+          "#171b24",
+          "#262e3c",
+          "#354054",
+          "#4b5b78",
+          "#768298",
+          "#a5adbc",
+          "#d0d4dc",
+          "#edeff2"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d2dbe7",
+        "cssVar": "--line",
+        "dark": "#24324f",
+        "tonalRamp": [
+          "#3f4245",
+          "#696e74",
+          "#9399a2",
+          "#d2dbe7",
+          "#dde4ed",
+          "#e9edf3",
+          "#f3f6f9",
+          "#fbfbfd"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Sheet headings (Entregas, empty-state title). Brand name in the shell runs 18px/650, -0.01em."
+      },
+      "title": {
+        "displayName": "Panel Title",
+        "purpose": "Panel legends and block labels, in Faded Ink."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base UI text with tabular numerals; mode labels at 14px."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Hints, status line, entry side metadata."
+      },
+      "mono": {
+        "displayName": "Wire Mono",
+        "purpose": "Payloads, header values, previews, curl; address field at 14px."
+      },
+      "mono-code": {
+        "displayName": "Code Mono",
+        "purpose": "Status chips, tags, count badge, arrival time (11-13px, 600)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet-lift",
+        "value": "0 1px 2px rgba(20, 33, 61, .06), 0 4px 14px rgba(20, 33, 61, .06)",
+        "dark": "0 1px 2px rgba(0, 0, 0, .3), 0 6px 18px rgba(0, 0, 0, .25)",
+        "purpose": "Every sheet; the only resting shadow."
+      },
+      {
+        "name": "toast",
+        "value": "0 8px 24px rgba(0, 0, 0, .25)",
+        "purpose": "Transient toast only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "150ms (background-color, border-color, color)",
+        "purpose": "Button and row state feedback."
+      },
+      {
+        "name": "reveal",
+        "value": "200ms",
+        "purpose": "Chevron rotation, toast fade and slide."
+      },
+      {
+        "name": "stamp",
+        "value": "220ms cubic-bezier(.2, .8, .2, 1); scale 1.35 to 1 with opacity",
+        "purpose": "New delivery postmark, once; disabled under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "820px"
+      },
+      {
+        "name": "compact",
+        "value": "560px"
+      }
+    ],
+    "airmailStripe": {
+      "value": "repeating-linear-gradient(135deg, var(--air-red) 0 14px, #fff 14px 20px, var(--air-blue) 20px 34px, #fff 34px 40px)",
+      "height": "6px",
+      "purpose": "Lower edge of the shell band only."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single filled action (Copiar URL).",
+      "html": "<button class=\"ds-btn\"><svg class=\"ds-icon\" viewBox=\"0 0 24 24\"><rect x=\"9\" y=\"9\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M5 15V5a2 2 0 0 1 2-2h10\"/></svg>Copiar URL</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;border:1px solid transparent;font:600 14px system-ui,sans-serif;background:var(--action,#15254a);color:var(--action-ink,#fff);cursor:pointer;transition:background-color .15s}.ds-btn:hover{background:var(--action-hover,#22386a)}.ds-btn:focus-visible{outline:2px solid var(--focus,#1f6fe0);outline-offset:2px}.ds-icon{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary tools and copy buttons; the danger variant reddens on hover.",
+      "html": "<button class=\"ds-quiet\">Simular entrega inválida</button> <button class=\"ds-quiet ds-danger\">Vaciar</button>",
+      "css": ".ds-quiet{height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--line,#d2dbe7);background:transparent;color:var(--ink,#14213d);font:600 13px system-ui,sans-serif;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s}.ds-quiet:hover{background:var(--sheet-2,#f4f7fb);border-color:var(--ink-2,#4b5b78)}.ds-danger:hover{color:var(--err,#b81d2f);border-color:var(--err,#b81d2f)}.ds-quiet:focus-visible{outline:2px solid var(--focus,#1f6fe0);outline-offset:2px}"
+    },
+    {
+      "name": "Address Field",
+      "kind": "input",
+      "refersTo": "input-address",
+      "description": "Read-only mono URL; click to copy.",
+      "html": "<input class=\"ds-url\" readonly value=\"https://example.ngrok.app/api/webhook/receive\">",
+      "css": ".ds-url{width:100%;height:44px;padding:0 14px;font:14px ui-monospace,Consolas,monospace;color:var(--ink,#14213d);background:var(--sheet-2,#f4f7fb);border:1px solid var(--line,#d2dbe7);border-radius:8px;cursor:pointer}.ds-url:hover{border-color:var(--ink-2,#4b5b78)}.ds-url:focus-visible{outline:2px solid var(--focus,#1f6fe0);outline-offset:2px}"
+    },
+    {
+      "name": "Response Mode Row",
+      "kind": "chip",
+      "refersTo": "status-chip-ok",
+      "description": "Radio row with a status chip; the checked row borrows its state ink for its border.",
+      "html": "<label class=\"ds-mode ds-ok\"><input type=\"radio\" name=\"m\" checked><span>Éxito</span><span class=\"ds-code\">200</span></label><label class=\"ds-mode\"><input type=\"radio\" name=\"m\"><span>Plantilla no aprobada</span><span class=\"ds-code\">400</span></label>",
+      "css": ".ds-mode{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;border:1px solid transparent;font:14px system-ui,sans-serif;cursor:pointer}.ds-mode:hover{background:var(--sheet-2,#f4f7fb)}.ds-code{font:600 12px ui-monospace,Consolas,monospace;padding:2px 7px;border-radius:999px;color:var(--err,#b81d2f);background:var(--err-soft,#fbe6e8)}.ds-ok .ds-code{color:var(--ok,#1b7343);background:var(--ok-soft,#e3f3ea)}.ds-mode:has(input:checked){background:var(--sheet-2,#f4f7fb);font-weight:600;border-color:color-mix(in srgb,var(--err,#b81d2f) 45%,transparent)}.ds-ok:has(input:checked){border-color:color-mix(in srgb,var(--ok,#1b7343) 45%,transparent)}"
+    },
+    {
+      "name": "Sheet",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "Raised white sheet on cool paper.",
+      "html": "<div class=\"ds-sheet\"><h2 class=\"ds-title\">Dirección de entrega</h2><p>Envía un POST con cuerpo JSON.</p></div>",
+      "css": ".ds-sheet{background:var(--sheet,#fff);border:1px solid var(--line,#d2dbe7);border-radius:10px;box-shadow:0 1px 2px rgba(20,33,61,.06),0 4px 14px rgba(20,33,61,.06);padding:18px 20px 20px;font:15px/1.5 system-ui,sans-serif;color:var(--ink,#14213d)}.ds-title{margin:0 0 12px;font-size:13px;font-weight:650;letter-spacing:.02em;color:var(--ink-2,#4b5b78)}"
+    },
+    {
+      "name": "Shell Band",
+      "kind": "nav",
+      "refersTo": "lang-toggle-active",
+      "description": "Navy header with air-mail stripe edge and the ES/EN toggle.",
+      "html": "<header class=\"ds-shell\"><div class=\"ds-bar\"><strong>Buzón de webhooks</strong><div class=\"ds-lang\"><button aria-pressed=\"true\">ES</button><button>EN</button></div></div></header>",
+      "css": ".ds-shell{background:#15254a;color:#eef3fc;font-family:system-ui,sans-serif}.ds-shell::after{content:\"\";display:block;height:6px;background:repeating-linear-gradient(135deg,#c8102e 0 14px,#fff 14px 20px,#1f4fa3 20px 34px,#fff 34px 40px)}.ds-bar{display:flex;align-items:center;justify-content:space-between;min-height:64px;padding:0 20px;font-size:18px;font-weight:650}.ds-lang{display:flex;padding:2px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16)}.ds-lang button{height:28px;min-width:36px;border:0;border-radius:6px;background:transparent;color:#aebbd6;font:650 12px system-ui,sans-serif;letter-spacing:.04em;cursor:pointer}.ds-lang button:hover{color:#eef3fc}.ds-lang button[aria-pressed=\"true\"]{background:#eef3fc;color:#15254a}.ds-lang button:focus-visible{outline:2px solid #fff;outline-offset:2px}"
+    },
+    {
+      "name": "Postmark",
+      "kind": "custom",
+      "refersTo": "status-chip-ok",
+      "description": "Signature per-delivery cancellation mark in state ink; stamps in once.",
+      "html": "<svg class=\"ds-pm\" viewBox=\"0 0 112 74\"><defs><path id=\"ds-t\" d=\"M 9.5 37 A 27.5 27.5 0 0 1 64.5 37\"/><path id=\"ds-b\" d=\"M 8 41 A 29 29 0 0 0 66 41\"/></defs><g transform=\"rotate(-4 37 37)\" fill=\"none\" stroke=\"currentColor\"><circle cx=\"37\" cy=\"37\" r=\"33\" stroke-width=\"2.4\"/><circle cx=\"37\" cy=\"37\" r=\"21\" stroke-width=\"1.1\"/><text font-size=\"8.2\" font-weight=\"700\" letter-spacing=\"1\" text-anchor=\"middle\" fill=\"currentColor\" stroke=\"none\"><textPath href=\"#ds-t\" startOffset=\"50%\">19 NOV 2026</textPath></text><text font-size=\"8.2\" font-weight=\"700\" letter-spacing=\"1\" text-anchor=\"middle\" fill=\"currentColor\" stroke=\"none\"><textPath href=\"#ds-b\" startOffset=\"50%\">11:01:56</textPath></text><text x=\"37\" y=\"42.5\" font-size=\"15\" font-weight=\"800\" text-anchor=\"middle\" fill=\"currentColor\" stroke=\"none\">200</text></g><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" opacity=\".85\"><path d=\"M74 25 q4.5 -4 9 0 t9 0 t9 0 t9 0\"/><path d=\"M74 37 q4.5 -4 9 0 t9 0 t9 0 t9 0\"/><path d=\"M74 49 q4.5 -4 9 0 t9 0 t9 0 t9 0\"/></g></svg>",
+      "css": ".ds-pm{width:112px;height:74px;color:var(--ok,#1b7343);font-family:system-ui,sans-serif;overflow:visible}@media (prefers-reduced-motion:no-preference){.ds-pm{animation:ds-stamp .22s cubic-bezier(.2,.8,.2,1) both}}@keyframes ds-stamp{from{transform:scale(1.35);opacity:0}to{transform:scale(1);opacity:1}}"
+    },
+    {
+      "name": "Signature Header Row",
+      "kind": "custom",
+      "refersTo": "signature-ink",
+      "description": "Headers tile rows; signature headers sort first with an air-blue wash.",
+      "html": "<dl class=\"ds-h\"><div class=\"ds-row ds-sig\"><dt>stripe-signature</dt><dd>t=1731990000,v1=5f1c9a0b7e3d42c8</dd></div><div class=\"ds-row\"><dt>content-type</dt><dd>application/json</dd></div></dl>",
+      "css": ".ds-h{margin:0;display:grid}.ds-row{display:grid;grid-template-columns:minmax(140px,220px) minmax(0,1fr);gap:12px;padding:7px 8px;border-radius:6px}.ds-row+.ds-row{border-top:1px dashed var(--line,#d2dbe7)}.ds-row dt{font:600 12.5px ui-monospace,Consolas,monospace;color:var(--ink-2,#4b5b78)}.ds-row dd{margin:0;font:12.5px/1.5 ui-monospace,Consolas,monospace;word-break:break-all}.ds-sig{background:color-mix(in srgb,var(--air-blue,#1f4fa3) 9%,transparent)}.ds-sig dt{color:var(--sig-ink,#1f4fa3)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Air-Mail Sorting Table",
+    "overview": "Every delivery is a letter laid on a sorting table and cancelled with a postmark that states when it arrived and what the endpoint answered. The chrome is an air-mail envelope: a navy shell band edged with a red/white/blue chevron stripe, sitting over cool paper (light) or night navy (dark). Content lives on white sheets with a thin rule and a soft ambient lift.\n\nThe system is quiet and dense, built for a page that sits beside the editor and is glanced at, not studied. Color is rationed: the air-mail red and blue belong to the envelope edge and the signature header; everywhere else, ink colors carry state only, green for 2xx and red for 4xx or invalid. System sans runs the interface; monospace is reserved for what came over the wire (payloads, headers, URLs, status codes, times).\n\nLight and dark are both first-class and follow the OS (`prefers-color-scheme`). Every token below has a dark counterpart in the sidecar; the dark world is night navy ground, raised navy sheets, and lifted pastel inks, not an inversion.",
+    "keyCharacteristics": [
+      "Navy shell band with a 6px diagonal air-mail stripe as its lower edge.",
+      "White sheets on cool paper, 10px corners, 1px rule, two-layer ambient shadow.",
+      "Status is spoken in ink color plus a mono code chip, never color alone.",
+      "One circular postmark per delivery, slightly rotated, stamped in once on arrival.",
+      "Monospace only for wire data; tabular numerals everywhere."
+    ],
+    "rules": [
+      {
+        "name": "The State Ink Rule",
+        "body": "Green and red mean HTTP outcome and nothing else. They never decorate, and they always travel with a printed code (200, 400, INVÁLIDO) so color is never the only signal.",
+        "section": "colors"
+      },
+      {
+        "name": "The Envelope Edge Rule",
+        "body": "Air-mail red and blue appear only on the shell stripe and identity marks. Spreading them into content turns the envelope into a flag.",
+        "section": "colors"
+      },
+      {
+        "name": "The Wire Is Mono Rule",
+        "body": "If it came over HTTP or will be pasted into a terminal, it is set in monospace; UI copy never is.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "Only sheets and the toast cast shadows. Rows, fields, and code blocks separate by border and tone.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do route every color through the custom properties so light and dark stay paired.",
+      "Do pair each state ink with a printed code or label (The State Ink Rule).",
+      "Do set wire data (payloads, headers, URLs, codes, times) in the mono stack, with tabular numerals.",
+      "Do keep one filled primary button per screen; everything else is quiet.",
+      "Do keep motion to state feedback (150-200ms) plus the single 220ms stamp-in, and honor `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "Don't use air-mail red or blue as content accents; they belong to the envelope edge (The Envelope Edge Rule).",
+      "Don't use green or red for anything but HTTP outcome.",
+      "Don't add shadows to rows, fields, or code blocks (The One Lift Rule).",
+      "Don't render deliveries as a grid of identical JSON cards; each one is a list row with its postmark."
+    ]
+  }
+}
