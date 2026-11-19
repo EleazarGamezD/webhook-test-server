@@ -146,7 +146,24 @@
         .mode[data-ok] .code { color: var(--ok); background: var(--ok-soft); }
         .mode:has(input:checked) { border-color: var(--line); background: var(--sheet-2); font-weight: 600; }
         .mode:has(input:checked)[data-ok] { border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
-        .mode:has(input:not([value="valid"]):checked) { border-color: color-mix(in srgb, var(--err) 45%, transparent); }
+        .mode:has(input:checked):not([data-ok]) { border-color: color-mix(in srgb, var(--err) 45%, transparent); }
+
+        /* Custom response editor: only while "custom" is selected */
+        .custom { display: none; margin-top: 10px; padding: 12px; border-radius: 8px; background: var(--sheet-2); border: 1px solid var(--line); }
+        .modes:has(input[value="custom"]:checked) + .custom { display: grid; gap: 8px; }
+        .custom-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .custom label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+        .custom select, .custom textarea {
+            font: 13px var(--mono); color: var(--ink); background: var(--sheet);
+            border: 1px solid var(--line); border-radius: 6px;
+        }
+        .custom select { height: 34px; padding: 0 8px; min-width: 96px; }
+        .custom textarea { width: 100%; padding: 10px 12px; line-height: 1.5; resize: vertical; min-height: 96px; }
+        .custom textarea[aria-invalid="true"] { border-color: var(--err); }
+        .custom select:hover, .custom textarea:hover { border-color: var(--ink-2); }
+        .custom-error { margin: 0; font-size: 13px; color: var(--err); }
+        .custom .btn { height: 36px; justify-self: end; }
+        .btn:disabled { opacity: .45; cursor: default; }
 
         /* Log */
         .log-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 20px; border-bottom: 1px solid var(--line); }
@@ -295,10 +312,25 @@
                     <legend data-i18n="modesLegend">Qué responde el endpoint</legend>
                     <div class="modes">
                         <label class="mode" data-ok><input type="radio" name="mode" value="valid" checked><span data-i18n="mode.valid">Éxito</span><span class="code">200</span></label>
-                        <label class="mode"><input type="radio" name="mode" value="404"><span data-i18n="mode.404">No encontrado</span><span class="code">400</span></label>
-                        <label class="mode"><input type="radio" name="mode" value="not-user"><span data-i18n="mode.not-user">No es usuario de WhatsApp</span><span class="code">400</span></label>
-                        <label class="mode"><input type="radio" name="mode" value="not-approved"><span data-i18n="mode.not-approved">Plantilla no aprobada</span><span class="code">400</span></label>
-                        <label class="mode"><input type="radio" name="mode" value="not-opted"><span data-i18n="mode.not-opted">Teléfono sin opt-in</span><span class="code">400</span></label>
+                        <label class="mode"><input type="radio" name="mode" value="invalid"><span data-i18n="mode.invalid">Entrega inválida</span><span class="code">400</span></label>
+                        <label class="mode" id="custom-mode" data-ok><input type="radio" name="mode" value="custom"><span data-i18n="mode.custom">Respuesta personalizada</span><span class="code" id="custom-code">200</span></label>
+                    </div>
+                    <div class="custom" id="custom-editor">
+                        <div class="custom-row">
+                            <label for="custom-status" data-i18n="statusLabel">Código HTTP</label>
+                            <select id="custom-status">
+                                <option>200</option><option>201</option><option>202</option><option>204</option>
+                                <option>400</option><option>401</option><option>403</option><option>404</option>
+                                <option>409</option><option>422</option><option>429</option>
+                                <option>500</option><option>502</option><option>503</option>
+                            </select>
+                        </div>
+                        <label for="custom-body" class="custom-label" data-i18n="bodyLabel">Cuerpo de la respuesta (JSON)</label>
+                        <textarea id="custom-body" rows="5" spellcheck="false">{
+  "ok": true
+}</textarea>
+                        <p id="custom-error" class="custom-error" role="alert" hidden></p>
+                        <button id="apply-custom" class="btn btn-primary" type="button" disabled><span data-i18n="apply">Aplicar</span></button>
                     </div>
                 </fieldset>
             </form>
@@ -308,7 +340,6 @@
             <div class="log-head">
                 <h2 id="log-title"><span data-i18n="deliveries">Entregas</span> <span id="log-count" class="count">0</span></h2>
                 <div class="tools">
-                    <button id="force-invalid" class="btn btn-quiet" type="button"><svg class="icon"><use href="#i-alert"/></svg><span data-i18n="forceInvalid">Simular entrega inválida</span></button>
                     <button id="clear-log" class="btn btn-quiet btn-danger" type="button"><svg class="icon"><use href="#i-trash"/></svg><span data-i18n="clear">Vaciar</span></button>
                 </div>
             </div>

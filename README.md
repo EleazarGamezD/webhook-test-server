@@ -67,15 +67,13 @@ Only you see the deliveries sent to it, and only you change its response mode. O
 
 Deliveries are deleted after `WEBHOOK_TTL_MINUTES` (default 10). `/api` requests are limited to `RATE_LIMIT_PER_MINUTE` per IP (default 120).
 
-### Simulating Response Types
+### Choosing the Response
 
-The interface allows you to simulate different response types:
+Pick what your inbox answers:
 
-- **Valid Response (200)**: Normal successful response
-- **404 Error**: Simulate a "Not Found" error
-- **Not a WhatsApp User**: Simulate the "Recipient is not a WhatsApp user" error
-- **Template Not Approved**: Simulate the "Template not approved" error
-- **Phone Not Opted In**: Simulate the "Phone number not opted in" error
+- **Success**: `200` with `{"success": true, "message": "Webhook recibido"}`
+- **Invalid delivery**: `400` with `{"error": {"message": "Invalid payload"}}`
+- **Custom response**: any common status (200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 429, 500, 502, 503) with your own JSON body (none for 204)
 
 ### Testing with cURL
 
@@ -95,9 +93,8 @@ curl -X POST \
 - `POST /api/webhook/receive/<inbox>` - Receive webhooks
 - `GET /api/inbox/<inbox>/history` - Deliveries from the last `WEBHOOK_TTL_MINUTES`
 - `POST /api/inbox/<inbox>/clear` - Clear history
-- `POST /api/inbox/<inbox>/force-invalid` - Record a simulated invalid delivery
-- `POST /api/inbox/<inbox>/set-response` - Set response mode (`valid`, `404`, `not-user`, `not-approved`, `not-opted`)
-- `GET /api/inbox/<inbox>/get-mode` - Get current response mode
+- `POST /api/inbox/<inbox>/set-response` - Set response: `{"mode":"valid"}`, `{"mode":"invalid"}` or `{"mode":"custom","status":422,"body":{...}}`
+- `GET /api/inbox/<inbox>/get-mode` - Get current response mode and saved custom response
 - `POST /api/webhook/validate` - Validate JSON payloads
 
 Run the tests with `npm test`.

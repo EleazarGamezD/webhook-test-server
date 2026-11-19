@@ -3,6 +3,11 @@
 
 const $ = (id) => document.getElementById(id);
 const SIGNATURE_RE = /sign|hmac|svix|webhook-id|webhook-timestamp|x-hub|digest|^authorization$/i;
+const STATUS_TEXT = {
+    200: 'OK', 201: 'Created', 202: 'Accepted', 204: 'No Content', 400: 'Bad Request', 401: 'Unauthorized',
+    403: 'Forbidden', 404: 'Not Found', 409: 'Conflict', 422: 'Unprocessable Entity', 429: 'Too Many Requests',
+    500: 'Internal Server Error', 502: 'Bad Gateway', 503: 'Service Unavailable',
+};
 
 // ---------- i18n ----------
 const I18N = {
@@ -11,9 +16,10 @@ const I18N = {
         address: 'Dirección de entrega', clickToCopy: 'Clic para copiar', copyUrl: 'Copiar URL',
         hint1: 'Envía un', hint2: 'con cuerpo JSON. Esta dirección es solo tuya: cada entrega aparece abajo y se borra a los {ttl} minutos.',
         modesLegend: 'Qué responde el endpoint',
-        'mode.valid': 'Éxito', 'mode.404': 'No encontrado', 'mode.not-user': 'No es usuario de WhatsApp',
-        'mode.not-approved': 'Plantilla no aprobada', 'mode.not-opted': 'Teléfono sin opt-in',
-        deliveries: 'Entregas', forceInvalid: 'Simular entrega inválida', clear: 'Vaciar',
+        'mode.valid': 'Éxito', 'mode.invalid': 'Entrega inválida', 'mode.custom': 'Respuesta personalizada',
+        statusLabel: 'Código HTTP', bodyLabel: 'Cuerpo de la respuesta (JSON)', apply: 'Aplicar',
+        badJson: 'JSON no válido: {x}', bodyRequired: 'Escribe un JSON (solo el 204 va sin cuerpo).',
+        deliveries: 'Entregas', clear: 'Vaciar',
         emptyTitle: 'Todavía no ha llegado nada',
         emptyBody: 'Configura tu sistema con la dirección de arriba o usa la prueba rápida.', tryIt: 'Prueba rápida',
         copy: 'Copiar', copied: 'Copiado', copyAll: 'Copiar todos', copyX: 'Copiar {x}',
@@ -22,8 +28,7 @@ const I18N = {
         offline: 'Sin conexión con el servidor',
         modeNow: 'Ahora responde: {x}', modeFail: 'No se pudo cambiar la respuesta',
         cleared: 'Historial vaciado', clearFail: 'No se pudo vaciar el historial',
-        invalidFail: 'No se pudo registrar la entrega inválida',
-        invalidSimulated: 'Entrega inválida simulada', invalidTag: 'INVÁLIDO', invalidShort: 'INVÁL.',
+        invalidTag: 'INVÁLIDO', invalidShort: 'INVÁL.',
         noBody: '(sin cuerpo)', noResponse: '(no se envió respuesta)', responseSent: 'Respuesta enviada',
         signature: 'Firma: {x}', noSignature: 'Sin firma detectada',
         pmLabel: 'Recibido {d} {t}', pmStatus: ', respondió {s}', pmInvalid: ', inválido',
@@ -34,9 +39,10 @@ const I18N = {
         address: 'Delivery address', clickToCopy: 'Click to copy', copyUrl: 'Copy URL',
         hint1: 'Send a', hint2: 'with a JSON body. This address is yours alone: each delivery shows up below and is deleted after {ttl} minutes.',
         modesLegend: 'What the endpoint responds',
-        'mode.valid': 'Success', 'mode.404': 'Not Found', 'mode.not-user': 'Not a WhatsApp user',
-        'mode.not-approved': 'Template not approved', 'mode.not-opted': 'Phone not opted in',
-        deliveries: 'Deliveries', forceInvalid: 'Simulate invalid delivery', clear: 'Clear',
+        'mode.valid': 'Success', 'mode.invalid': 'Invalid delivery', 'mode.custom': 'Custom response',
+        statusLabel: 'HTTP status', bodyLabel: 'Response body (JSON)', apply: 'Apply',
+        badJson: 'Invalid JSON: {x}', bodyRequired: 'Enter some JSON (only 204 has no body).',
+        deliveries: 'Deliveries', clear: 'Clear',
         emptyTitle: 'Nothing has arrived yet',
         emptyBody: 'Point your system at the address above or use the quick test.', tryIt: 'Quick test',
         copy: 'Copy', copied: 'Copied', copyAll: 'Copy all', copyX: 'Copy {x}',
@@ -45,8 +51,7 @@ const I18N = {
         offline: 'No connection to the server',
         modeNow: 'Now responding: {x}', modeFail: 'Could not change the response',
         cleared: 'History cleared', clearFail: 'Could not clear the history',
-        invalidFail: 'Could not record the invalid delivery',
-        invalidSimulated: 'Simulated invalid delivery', invalidTag: 'INVALID', invalidShort: 'INVAL.',
+        invalidTag: 'INVALID', invalidShort: 'INVAL.',
         noBody: '(empty body)', noResponse: '(no response sent)', responseSent: 'Response sent',
         signature: 'Signature: {x}', noSignature: 'No signature detected',
         pmLabel: 'Received {d} {t}', pmStatus: ', responded {s}', pmInvalid: ', invalid',
@@ -116,8 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
     $('webhook-url').addEventListener('click', () => copyUrl());
     $('copy-curl').addEventListener('click', (e) => copyText($('curl-example').textContent, e.currentTarget));
     $('clear-log').addEventListener('click', clearHistory);
-    $('force-invalid').addEventListener('click', forceInvalid);
-    $('mode-form').addEventListener('change', (e) => setMode(e.target.value));
+    $('mode-form').addEventListener('change', (e) => {
+        if (e.target.name !== 'mode') return; // el select y el textarea del editor también disparan change
+        e.target.value === 'custom' ? applyCustom() : setMode({ mode: e.target.value });
+    });
+    $('custom-status').addEventListener('change', onCustomEdit);
+    $('custom-body').addEventListener('input', onCustomEdit);
+    $('apply-custom').addEventListener('click', applyCustom);
 
     fetchMode();
     fetchHistory();
@@ -192,27 +202,74 @@ function setStatus(ok, count) {
 async function fetchMode() {
     try {
         const r = await fetch(`${API}/get-mode`);
-        const { mode } = await r.json();
+        const { mode, custom } = await r.json();
         const input = document.querySelector(`input[name="mode"][value="${CSS.escape(mode)}"]`);
         if (input) input.checked = true;
+        if (custom) {
+            $('custom-status').value = String(custom.status);
+            $('custom-body').value = custom.body == null ? '' : JSON.stringify(custom.body, null, 2);
+            showCustomStatus();
+            $('apply-custom').disabled = true;
+        }
     } catch (err) {
         console.error('No se pudo leer el modo:', err);
     }
 }
 
-async function setMode(mode) {
+async function setMode(payload) {
     try {
         const r = await fetch(`${API}/set-response`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mode }),
+            body: JSON.stringify(payload),
         });
         if (!r.ok) throw new Error(r.status);
-        toast(t('modeNow', { x: `${t(`mode.${mode}`)} (${mode === 'valid' ? 200 : 400})` }));
+        const code = payload.mode === 'custom' ? payload.status : payload.mode === 'valid' ? 200 : 400;
+        toast(t('modeNow', { x: `${t(`mode.${payload.mode}`)} (${code})` }));
+        return true;
     } catch (err) {
         toast(t('modeFail'));
         fetchMode();
+        return false;
     }
+}
+
+// ---------- Respuesta personalizada ----------
+
+function showCustomStatus() {
+    const status = Number($('custom-status').value);
+    $('custom-code').textContent = status;
+    $('custom-mode').toggleAttribute('data-ok', status < 400);
+}
+
+function onCustomEdit() {
+    showCustomStatus();
+    $('custom-error').hidden = true;
+    $('custom-body').removeAttribute('aria-invalid');
+    $('apply-custom').disabled = false;
+}
+
+// Valida el JSON en el navegador antes de enviarlo; el servidor vuelve a validar
+async function applyCustom() {
+    const status = Number($('custom-status').value);
+    const raw = $('custom-body').value.trim();
+    let body;
+    if (raw) {
+        try { body = JSON.parse(raw); } catch (err) { return customError(t('badJson', { x: err.message })); }
+    } else if (status !== 204) {
+        return customError(t('bodyRequired'));
+    }
+    $('custom-mode').querySelector('input').checked = true;
+    if (await setMode({ mode: 'custom', status, body })) $('apply-custom').disabled = true;
+}
+
+function customError(message) {
+    $('custom-mode').querySelector('input').checked = true;
+    $('custom-error').textContent = message;
+    $('custom-error').hidden = false;
+    $('custom-body').setAttribute('aria-invalid', 'true');
+    $('apply-custom').disabled = false;
+    $('custom-body').focus();
 }
 
 async function fetchHistory() {
@@ -238,19 +295,6 @@ async function clearHistory() {
         toast(t('cleared'));
     } catch (err) {
         toast(t('clearFail'));
-    }
-}
-
-async function forceInvalid() {
-    try {
-        await fetch(`${API}/force-invalid`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Invalid payload format', received: 'partial data', timestamp: new Date().toISOString() }),
-        });
-        fetchHistory();
-    } catch (err) {
-        toast(t('invalidFail'));
     }
 }
 
@@ -313,9 +357,9 @@ function pretty(value) {
 function renderEntry(entry, isNew) {
     const ok = entry.isValid && (!entry.responseStatus || entry.responseStatus < 400);
     const status = entry.responseStatus || null;
-    const message = entry.responseBody
-        ? (entry.responseBody.message || entry.responseBody.error?.message || '')
-        : t('invalidSimulated');
+    const body = entry.responseBody;
+    const message = (body && typeof body === 'object' && (body.message || body.error?.message))
+        || STATUS_TEXT[status] || '';
     const payloadText = pretty(entry.payload);
     const compact = (() => { try { return JSON.stringify(entry.payload); } catch { return String(entry.payload); } })();
     const bytes = new Blob([compact || '']).size;
@@ -348,7 +392,7 @@ function renderEntry(entry, isNew) {
         el('pre', { text: payloadText || t('noBody') }),
     );
 
-    const responseText = entry.responseBody ? pretty(entry.responseBody) : t('noResponse');
+    const responseText = entry.responseBody != null ? pretty(entry.responseBody) : t(status ? 'noBody' : 'noResponse');
     const responseBlock = el('div', { class: 'block' },
         el('h3', {}, el('span', { text: status ? `${t('responseSent')} · ${status}` : t('responseSent') }), copyButton(() => responseText)),
         el('pre', { text: responseText }),

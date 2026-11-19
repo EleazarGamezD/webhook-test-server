@@ -17,11 +17,10 @@ const INBOX_RE = /^[a-f0-9]{16,64}$/;
 
 const RESPONSES = {
   'valid': { status: 200, body: { success: true, message: 'Webhook recibido' } },
-  '404': { status: 400, body: { error: { message: 'Not Found' } } },
-  'not-user': { status: 400, body: { error: { message: 'Recipient is not a WhatsApp user' } } },
-  'not-approved': { status: 400, body: { error: { message: 'Template not approved' } } },
-  'not-opted': { status: 400, body: { error: { message: 'Phone number not opted in' } } },
+  'invalid': { status: 400, body: { error: { message: 'Invalid payload' } } },
 };
+const CUSTOM_STATUSES = [200, 201, 202, 204, 400, 401, 403, 404, 409, 422, 429, 500, 502, 503];
+const MAX_CUSTOM_BODY = 10_000; // caracteres del JSON personalizado
 
 // Buzones en memoria: id -> { mode, history, touched }
 const inboxes = new Map();
@@ -41,7 +40,7 @@ function getInbox(id) {
       const [oldest] = [...inboxes].sort((a, b) => a[1].touched - b[1].touched)[0];
       inboxes.delete(oldest);
     }
-    box = { mode: 'valid', history: [], touched: Date.now() };
+    box = { mode: 'valid', custom: { status: 200, body: { ok: true } }, history: [], touched: Date.now() };
     inboxes.set(id, box);
   }
   box.touched = Date.now();
@@ -97,7 +96,7 @@ app.param('inbox', (req, res, next, id) => {
 // 1. Recibir webhooks
 app.post('/api/webhook/receive/:inbox', (req, res) => {
   const box = getInbox(req.params.inbox);
-  const { status, body } = RESPONSES[box.mode];
+  const { status, body } = box.mode === 'custom' ? box.custom : RESPONSES[box.mode];
   addEntry(box, {
     id: Date.now() + Math.random(),
     receivedAt: Date.now(),
@@ -106,9 +105,10 @@ app.post('/api/webhook/receive/:inbox', (req, res) => {
     headers: req.headers,
     isValid: status < 400,
     responseStatus: status,
-    responseBody: body,
+    responseBody: status === 204 ? null : body,
   });
   console.log(`Webhook en ${req.params.inbox.slice(0, 6)}… -> ${status}`);
+  if (status === 204) return res.status(204).end();
   res.status(status).json(body);
 });
 
@@ -137,30 +137,25 @@ app.post('/api/inbox/:inbox/clear', (req, res) => {
   res.json({ success: true, message: 'Historial borrado' });
 });
 
-// 5. Registrar una entrega inválida simulada
-app.post('/api/inbox/:inbox/force-invalid', (req, res) => {
-  addEntry(getInbox(req.params.inbox), {
-    id: Date.now() + Math.random(),
-    receivedAt: Date.now(),
-    timestamp: new Date().toISOString(),
-    payload: req.body,
-    isValid: false,
-  });
-  res.json({ success: true, message: 'Webhook inválido registrado' });
-});
-
-// 6. Cambiar qué responde el buzón
+// 5. Cambiar qué responde el buzón: 'valid', 'invalid' o 'custom' con { status, body }
 app.post('/api/inbox/:inbox/set-response', (req, res) => {
-  const mode = req.body && req.body.mode;
-  if (!RESPONSES[mode]) return res.status(400).json({ error: { message: 'Invalid mode' } });
-  getInbox(req.params.inbox).mode = mode;
+  const { mode, status, body } = req.body || {};
+  if (mode !== 'custom' && !RESPONSES[mode]) return res.status(400).json({ error: { message: 'Invalid mode' } });
+  if (mode === 'custom') {
+    if (!CUSTOM_STATUSES.includes(status)) return res.status(400).json({ error: { message: 'Invalid status' } });
+    if (status !== 204 && body === undefined) return res.status(400).json({ error: { message: 'Missing body' } });
+    if (JSON.stringify(body ?? null).length > MAX_CUSTOM_BODY) return res.status(400).json({ error: { message: 'Body too large' } });
+  }
+  const box = getInbox(req.params.inbox);
+  box.mode = mode;
+  if (mode === 'custom') box.custom = { status, body: body ?? null };
   res.json({ success: true, mode });
 });
 
-// 7. Modo actual
+// 6. Modo actual (y la respuesta personalizada guardada)
 app.get('/api/inbox/:inbox/get-mode', (req, res) => {
   const box = inboxes.get(req.params.inbox);
-  res.json({ mode: box ? box.mode : 'valid' });
+  res.json(box ? { mode: box.mode, custom: box.custom } : { mode: 'valid', custom: { status: 200, body: { ok: true } } });
 });
 
 // Iniciar el servidor solo si se ejecuta directamente (en Vercel se exporta la app)
