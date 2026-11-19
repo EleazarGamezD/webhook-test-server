@@ -9,7 +9,7 @@ const I18N = {
     es: {
         title: 'Buzón de webhooks', language: 'Idioma', connecting: 'Conectando…',
         address: 'Dirección de entrega', clickToCopy: 'Clic para copiar', copyUrl: 'Copiar URL',
-        hint1: 'Envía un', hint2: 'con cuerpo JSON. Cada entrega aparece abajo en un par de segundos.',
+        hint1: 'Envía un', hint2: 'con cuerpo JSON. Esta dirección es solo tuya: cada entrega aparece abajo y se borra a los {ttl} minutos.',
         modesLegend: 'Qué responde el endpoint',
         'mode.valid': 'Éxito', 'mode.404': 'No encontrado', 'mode.not-user': 'No es usuario de WhatsApp',
         'mode.not-approved': 'Plantilla no aprobada', 'mode.not-opted': 'Teléfono sin opt-in',
@@ -32,7 +32,7 @@ const I18N = {
     en: {
         title: 'Webhook inbox', language: 'Language', connecting: 'Connecting…',
         address: 'Delivery address', clickToCopy: 'Click to copy', copyUrl: 'Copy URL',
-        hint1: 'Send a', hint2: 'with a JSON body. Each delivery shows up below within a couple of seconds.',
+        hint1: 'Send a', hint2: 'with a JSON body. This address is yours alone: each delivery shows up below and is deleted after {ttl} minutes.',
         modesLegend: 'What the endpoint responds',
         'mode.valid': 'Success', 'mode.404': 'Not Found', 'mode.not-user': 'Not a WhatsApp user',
         'mode.not-approved': 'Template not approved', 'mode.not-opted': 'Phone not opted in',
@@ -61,7 +61,8 @@ let lang = (() => {
 
 function t(key, vars = {}) {
     const str = I18N[lang][key] ?? I18N.es[key] ?? key;
-    return str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+    const all = { ttl: ttlMinutes, ...vars };
+    return str.replace(/\{(\w+)\}/g, (_, k) => all[k] ?? '');
 }
 
 function applyLang() {
@@ -85,7 +86,17 @@ function setLang(next) {
     }
 }
 
-let webhookUrl = `${location.origin}/api/webhook/receive`;
+// Buzón privado: id aleatorio guardado en este navegador
+const INBOX = (() => {
+    const KEY = 'webhook-inbox-id';
+    try { const saved = localStorage.getItem(KEY); if (/^[a-f0-9]{16,64}$/.test(saved)) return saved; } catch { }
+    const id = [...crypto.getRandomValues(new Uint8Array(12))].map(b => b.toString(16).padStart(2, '0')).join('');
+    try { localStorage.setItem(KEY, id); } catch { }
+    return id;
+})();
+const API = `/api/inbox/${INBOX}`;
+let ttlMinutes = 10;
+let webhookUrl = `${location.origin}/api/webhook/receive/${INBOX}`;
 let renderedKey = null;
 let knownIds = null;
 let lastList = null;
@@ -96,8 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
     applyLang();
     document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
     setWebhookUrl(webhookUrl);
-    fetch('/api/config').then(r => r.json()).then(({ publicUrl }) => {
-        if (publicUrl) setWebhookUrl(`${publicUrl}/api/webhook/receive`);
+    fetch('/api/config').then(r => r.json()).then(({ publicUrl, ttlMinutes: ttl }) => {
+        if (ttl) { ttlMinutes = ttl; applyLang(); }
+        if (publicUrl) setWebhookUrl(`${publicUrl}/api/webhook/receive/${INBOX}`);
     }).catch(() => { });
 
     $('copy-url').addEventListener('click', () => copyUrl());
@@ -179,7 +191,7 @@ function setStatus(ok, count) {
 
 async function fetchMode() {
     try {
-        const r = await fetch('/api/webhook/get-mode');
+        const r = await fetch(`${API}/get-mode`);
         const { mode } = await r.json();
         const input = document.querySelector(`input[name="mode"][value="${CSS.escape(mode)}"]`);
         if (input) input.checked = true;
@@ -190,7 +202,7 @@ async function fetchMode() {
 
 async function setMode(mode) {
     try {
-        const r = await fetch('/api/webhook/set-response', {
+        const r = await fetch(`${API}/set-response`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mode }),
@@ -205,7 +217,8 @@ async function setMode(mode) {
 
 async function fetchHistory() {
     try {
-        const r = await fetch('/api/webhook/history');
+        const r = await fetch(`${API}/history`);
+        if (r.status === 429) return; // límite de peticiones: se reintenta en el siguiente ciclo
         if (!r.ok) throw new Error(r.status);
         const list = await r.json();
         lastList = list;
@@ -218,7 +231,7 @@ async function fetchHistory() {
 
 async function clearHistory() {
     try {
-        await fetch('/api/webhook/clear', { method: 'POST' });
+        await fetch(`${API}/clear`, { method: 'POST' });
         openIds.clear();
         openHeaderIds.clear();
         await fetchHistory();
@@ -230,7 +243,7 @@ async function clearHistory() {
 
 async function forceInvalid() {
     try {
-        await fetch('/api/webhook/force-invalid', {
+        await fetch(`${API}/force-invalid`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Invalid payload format', received: 'partial data', timestamp: new Date().toISOString() }),

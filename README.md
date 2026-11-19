@@ -46,23 +46,26 @@ webhook-test-server/
 Copy `.env.example` to `.env` (loaded by `npm start`, Node 22.9+):
 
 - `PORT` (default `3005`)
+- `WEBHOOK_TTL_MINUTES` (default `10`), `RATE_LIMIT_PER_MINUTE` (default `120`)
 - `PUBLIC_URL`: public base URL shown in the UI, e.g. `https://abc.ngrok-free.app`. On Vercel it defaults to the production domain; otherwise the UI uses the origin you opened it from.
 
 ### Deploy to Vercel
 
 Import the repo in Vercel (or run `vercel`). No config needed: `server.js` exports the Express app and `public/` is served as static files. Set `PUBLIC_URL` in Project Settings → Environment Variables only if you use a custom domain.
 
-Note: history is kept in memory, so on Vercel it resets when the function goes cold.
+Note: history is kept in memory, so on Vercel it resets when the function goes cold, and the rate limit is per function instance. For real protection, add a rate-limit rule in the Vercel Firewall (Project → Firewall).
 
 ## Usage
 
 ### Receiving Webhooks
 
-Configure your external services to send POST requests to:
+Each visitor gets a private inbox: the page generates a random id, keeps it in the browser, and shows your own address:
 ```
-http://localhost:3005/api/webhook/receive
+https://your-host/api/webhook/receive/<inbox-id>
 ```
-All webhooks will be displayed in the interface automatically. Open a delivery to see its payload, the response sent and its request headers (signature headers such as `x-hub-signature-256` or `stripe-signature` are listed first, each copyable).
+Only you see the deliveries sent to it, and only you change its response mode. Open a delivery to see its payload, the response sent and its request headers (signature headers such as `x-hub-signature-256` or `stripe-signature` are listed first, each copyable).
+
+Deliveries are deleted after `WEBHOOK_TTL_MINUTES` (default 10). `/api` requests are limited to `RATE_LIMIT_PER_MINUTE` per IP (default 120).
 
 ### Simulating Response Types
 
@@ -87,12 +90,17 @@ curl -X POST \
 
 ## API Endpoints
 
-- `POST /api/webhook/receive` - Receive webhooks
+`<inbox>` is 16–64 lowercase hex characters.
+
+- `POST /api/webhook/receive/<inbox>` - Receive webhooks
+- `GET /api/inbox/<inbox>/history` - Deliveries from the last `WEBHOOK_TTL_MINUTES`
+- `POST /api/inbox/<inbox>/clear` - Clear history
+- `POST /api/inbox/<inbox>/force-invalid` - Record a simulated invalid delivery
+- `POST /api/inbox/<inbox>/set-response` - Set response mode (`valid`, `404`, `not-user`, `not-approved`, `not-opted`)
+- `GET /api/inbox/<inbox>/get-mode` - Get current response mode
 - `POST /api/webhook/validate` - Validate JSON payloads
-- `GET /api/webhook/history` - Get webhook history
-- `POST /api/webhook/clear` - Clear webhook history
-- `POST /api/webhook/set-response` - Set response mode
-- `GET /api/webhook/get-mode` - Get current response mode
+
+Run the tests with `npm test`.
 
 ## License
 
