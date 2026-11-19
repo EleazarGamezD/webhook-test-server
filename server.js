@@ -3,7 +3,12 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
-const PORT = 3005;
+const PORT = process.env.PORT || 3005;
+// URL pública (ngrok, dominio propio...). En Vercel se toma sola del dominio de producción.
+// Si no hay ninguna, el front usa el origen desde el que se abre la página.
+const PUBLIC_URL = (process.env.PUBLIC_URL
+  || (process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
+  || '').replace(/\/+$/, '');
 
 // Variables globales
 let webhookHistory = [];
@@ -12,12 +17,12 @@ let responseMode = "valid"; // "valid", "404", "not-user", "not-approved", "not-
 // Middleware para analizar JSON
 app.use(bodyParser.json());
 
-// Servir archivos estáticos (CSS, JS, etc.)
-app.use(express.static(__dirname));
+// Frontend (en Vercel, public/ lo sirve directamente la CDN)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta principal - sirve testwebhook.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'testwebhook.html'));
+// Configuración para el front
+app.get('/api/config', (req, res) => {
+  res.json({ publicUrl: PUBLIC_URL || null });
 });
 
 // API Endpoints para webhooks
@@ -91,7 +96,7 @@ app.post('/api/webhook/validate', (req, res) => {
   try {
     const payload = req.body;
     
-    if (!validResponseEnabled || !payload || Object.keys(payload).length === 0) {
+    if (!payload || Object.keys(payload).length === 0) {
       return res.status(400).json({ 
         valid: false, 
         message: 'Payload inválido: vacío o ausente' 
@@ -153,7 +158,12 @@ app.get('/api/webhook/get-mode', (req, res) => {
   res.status(200).json({ mode: responseMode });
 });
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`Servidor webhook ejecutándose en http://localhost:${PORT}`);
-});
+// Iniciar el servidor solo si se ejecuta directamente (en Vercel se exporta la app)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor webhook escuchando en el puerto ${PORT}`);
+    console.log(`Webhook URL: ${PUBLIC_URL || `http://localhost:${PORT}`}/api/webhook/receive`);
+  });
+}
+
+module.exports = app;

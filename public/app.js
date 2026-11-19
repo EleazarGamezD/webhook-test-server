@@ -34,6 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Webhook URL: PUBLIC_URL del servidor o el origen desde el que se abrió la página
+    let webhookUrl = `${window.location.origin}/api/webhook/receive`;
+    const webhookUrlEl = document.getElementById('webhook-url');
+    webhookUrlEl.value = webhookUrl;
+    fetch('/api/config').then(r => r.json()).then(({ publicUrl }) => {
+        if (publicUrl) webhookUrl = `${publicUrl}/api/webhook/receive`;
+        webhookUrlEl.value = webhookUrl;
+    }).catch(() => {});
+
     // Initialize
     fetchWebhookHistory();
     
@@ -43,9 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     clearLogBtn.addEventListener('click', clearWebhookHistory);
     
-    copyUrlBtn.addEventListener('click', () => {
-        const url = `http://localhost:${window.location.port}/api/webhook/receive`;
-        navigator.clipboard.writeText(url)
+    function copyWebhookUrl() {
+        webhookUrlEl.select();
+        // navigator.clipboard solo existe en https/localhost; si no, copia lo seleccionado
+        const copy = navigator.clipboard
+            ? navigator.clipboard.writeText(webhookUrl)
+            : (document.execCommand('copy') ? Promise.resolve() : Promise.reject(new Error('copy failed')));
+        copy
             .then(() => {
                 const originalText = copyUrlBtn.innerHTML;
                 copyUrlBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
@@ -56,7 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => {
                 console.error('Failed to copy: ', err);
             });
-    });
+    }
+    copyUrlBtn.addEventListener('click', copyWebhookUrl);
+    webhookUrlEl.addEventListener('click', copyWebhookUrl);
 
     forceInvalidBtn.addEventListener('click', forceInvalidWebhook);
     

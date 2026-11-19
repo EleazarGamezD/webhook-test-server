@@ -41,6 +41,19 @@ webhook-test-server/
 4. **Access the webhook testing interface:**
    Open your browser and navigate to `http://localhost:3005`.
 
+### Environment variables
+
+Copy `.env.example` to `.env` (loaded by `npm start`, Node 22.9+):
+
+- `PORT` (default `3005`)
+- `PUBLIC_URL`: public base URL shown in the UI, e.g. `https://abc.ngrok-free.app`. On Vercel it defaults to the production domain; otherwise the UI uses the origin you opened it from.
+
+### Deploy to Vercel
+
+Import the repo in Vercel (or run `vercel`). No config needed: `server.js` exports the Express app and `public/` is served as static files. Set `PUBLIC_URL` in Project Settings → Environment Variables only if you use a custom domain.
+
+Note: history is kept in memory, so on Vercel it resets when the function goes cold.
+
 ## Usage
 
 ### Receiving Webhooks
